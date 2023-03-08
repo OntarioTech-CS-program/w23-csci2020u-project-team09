@@ -1,8 +1,14 @@
 # w23-csci2020u-project-team09
 
-## < Insert Name of the project >>
+## Zocial - Break that Ice!
 
-< Insert what the app is about >> 
+(ROUGH DRAFT) 
+
+Because of pandemic not a lot of people were able to meet IRL
+- this allows new people to meet each other virtually and chat. 
+- This app provides a ice breaking space where a user can create a group chat roon and is shared publicly for new people to join. 
+
+<< Insert What the app can do ... Does it have CRUD ? >>
 
 ## How to setup and use
 
