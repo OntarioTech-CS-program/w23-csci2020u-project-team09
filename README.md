@@ -10,6 +10,6 @@
 
 ## Collaborators 
 
-Mariyam Muhammad 
-Supriya Mutharasan
-Jake Sullivan
+- Mariyam Muhammad 
+- Supriya Mutharasan
+- Jake Sullivan
