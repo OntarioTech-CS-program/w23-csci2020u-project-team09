@@ -2,12 +2,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Zocial Web Application</title>
+    <title>JSP - Hello World</title>
 </head>
 <body>
 <h1><%= "Hello World!" %>
 </h1>
 <br/>
-<a href="zocial-servlet">Zocial Servlet</a>
+<a href="hello-servlet">Hello Servlet</a>
 </body>
 </html>
