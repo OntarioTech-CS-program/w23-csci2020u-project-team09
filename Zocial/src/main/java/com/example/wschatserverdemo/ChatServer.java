@@ -22,7 +22,7 @@ public class ChatServer {
     private static Map<String, String> roomHistoryList = new HashMap<String, String>();
     @OnOpen
     public void open(@PathParam("roomID") String roomID, Session session) throws IOException, EncodeException {
-        //session.getBasicRemote().sendText("{\"type\": \"chat\", \"message\":\"(Server ): Welcome to the chat room. Please state your username to begin.\"}");
+        session.getBasicRemote().sendText("{\"type\": \"chat\", \"message\":\"(Server ): Welcome to the chat room. Please state your username to begin.\"}");
 
         roomList.put(session.getId(), roomID); // adding userID to a room
 
@@ -41,9 +41,7 @@ public class ChatServer {
         }
 
         System.out.println(" New client entered " + session.getId());
-
-
-        //roomList.put(session.getId(), roomID); // adding userID to a room
+        roomList.put(session.getId(), roomID); // adding userID to a room
     }
 
     @OnClose
