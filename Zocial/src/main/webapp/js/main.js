@@ -145,3 +145,10 @@ function timestamp() {
     if (minutes < 10) minutes = '0' + minutes;
     return d.getHours() + ':' + minutes;
 }
+
+function addEmoji(emote){
+    console.log("emote: ", emote);
+    let emoji = String.fromCodePoint(emote);
+    console.log("emoji: ", emoji);
+    document.getElementById("input").value += emoji;
+}
