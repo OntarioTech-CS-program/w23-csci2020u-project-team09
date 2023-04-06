@@ -25,7 +25,7 @@ public class ChatServer {
     @OnClose
     public void close(Session session) throws IOException, EncodeException {
         System.out.println("Called for no reason");
-        /**String userId = session.getId();
+        String userId = session.getId();
         if (usernames.containsKey(userId)) {
             String username = usernames.get(userId);
             String roomID = roomList.get(userId);
@@ -35,7 +35,7 @@ public class ChatServer {
                     peer.getBasicRemote().sendText("{\"type\": \"chat\", \"message\":\"(Server): " + username + " left the chat room.\"}");
                 }
             }
-        }**/
+        }
     }
 
     @OnMessage
