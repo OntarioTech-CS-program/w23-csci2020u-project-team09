@@ -89,22 +89,27 @@ public class ChatServer {
                 System.out.println(" Play command sent !");
                 for(Session peer: session.getOpenSessions()){
                     // only send my messages to those in the same room
-                    peer.getBasicRemote().sendText(comm);
+                    if(roomList.get(peer.getId()).equals(roomID)) { // broadcast only to those in the same room
+                        peer.getBasicRemote().sendText(comm);
+                    }
                 }
                 break;
             case "pause":
                 System.out.println(" pause command sent !");
                 for(Session peer: session.getOpenSessions()){
                     // only send my messages to those in the same room
-                    peer.getBasicRemote().sendText(comm);
-
+                    if(roomList.get(peer.getId()).equals(roomID)) { // broadcast only to those in the same room
+                        peer.getBasicRemote().sendText(comm);
+                    }
                 }
                 break;
             case "seeked":
                 System.out.println(" seeked command sent !");
                 for(Session peer: session.getOpenSessions()){
                     // only send my messages to those in the same room
-                    peer.getBasicRemote().sendText(comm);
+                    if(roomList.get(peer.getId()).equals(roomID)) { // broadcast only to those in the same room
+                        peer.getBasicRemote().sendText(comm);
+                    }
 
                 }
                 break;
