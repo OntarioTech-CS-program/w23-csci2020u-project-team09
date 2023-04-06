@@ -82,7 +82,7 @@ public class ChatServer {
         String roomID = roomList.get(userID); // my room
         JSONObject jsonmsg = new JSONObject(comm);
         String type = (String) jsonmsg.get("type");
-        String message = " bal";
+
         System.out.println(" GIVEN COMMAND - " + type);
         switch(type) {
             case "play":
@@ -110,6 +110,7 @@ public class ChatServer {
                 break;
             case "chat":
                 System.out.println("Chat instruction called !");
+                String message = (String) jsonmsg.get("msg");
                 if(usernames.containsKey(userID)){ // not their first message
                     String username = usernames.get(userID);
                     System.out.println(username);
@@ -133,8 +134,6 @@ public class ChatServer {
             default:
                 throw new IOException("error : client sent wrong instruction. ");
         }
-
-
 
     }
 
