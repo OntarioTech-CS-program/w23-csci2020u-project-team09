@@ -9,8 +9,12 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import static util.ResourceAPI.loadChatRoomHistory;
+import static util.ResourceAPI.saveChatRoomHistory;
 
 /**
  * This class represents a web socket server, a new connection is created and it receives a roomID as a parameter
@@ -25,6 +29,8 @@ public class ChatServer {
      - TODO - (Coordinate w/ Heather/ Jahanvi) Might have to implement a list of messages similar to WSChatServerDemo
      **/
     public static List<ChatRoom> listOfChatRooms = new ArrayList<ChatRoom>();
+    private static Map<String, String> roomHistoryList = new HashMap<String, String>();
+
 
     // you may add other attributes as you see fit
 
@@ -47,9 +53,23 @@ public class ChatServer {
         }
         else{
             result.getUsers().put(session.getId(),"");
-            System.out.print("Room already exists! Adding new client " + session.getId() + "to the chat room : " + result.getCode());
+            System.out.println("Room already exists! Adding new client " + session.getId() + "to the chat room : " + result.getCode());
+
         }
 
+        // loading the history chat
+        String history = loadChatRoomHistory(roomID);
+        System.out.println("Room joined ");
+        if (history!=null && !(history.isBlank())){
+            System.out.println(history);
+            history = history.replaceAll(System.lineSeparator(), "\\\n");
+            System.out.println(history);
+            //session.getBasicRemote().sendText("{\"type\": \"chat\", \"message\":\""+history+" \\n Chat room history loaded\"}");
+            roomHistoryList.put(roomID, history+" \\n "+roomID + " room resumed.");
+        }
+        if(!roomHistoryList.containsKey(roomID)) { // only if this room has no history yet
+            roomHistoryList.put(roomID, roomID + " room Created."); //initiating the room history
+        }
     }
 
     /*
@@ -128,6 +148,9 @@ public class ChatServer {
             System.out.println("Room is still occupied, only single user removed");
         }
 
+        saveChatRoomHistory(roomID, roomHistoryList.get(roomID));
+
+
     }
 
     public static boolean CloseChatRemove(ChatRoom givenRoom){
@@ -150,6 +173,7 @@ public class ChatServer {
                 countPeers++; // count how many peers are left in the room
             }
         }
+
         return countPeers;
     }
     /*
@@ -168,6 +192,12 @@ public class ChatServer {
         String chatRoomCode = roomID;
         ChatRoom result = FindChatRoom(chatRoomCode);
         String updatedTimeStamp = "0";
+
+        // adding event to the history of the room
+        String username = FindUsernameInChatRoom(chatRoomCode, userId);
+        //System.out.println(username);
+        String logHistory = roomHistoryList.get(roomID);
+        roomHistoryList.put(roomID, logHistory+" \\n " +"(" + username + "): " + message + "♦");
 
         if (result == null){
             throw new IOException(" Room is non-existent !");
