@@ -64,11 +64,12 @@ public class ChatServer {
             System.out.println(history);
             history = history.replaceAll(System.lineSeparator(), "\\\n");
             System.out.println(history);
-            //session.getBasicRemote().sendText("{\"type\": \"chat\", \"message\":\""+history+" \\n Chat room history loaded\"}");
+            //session.getBasicRemote().sendText("{\"type\": \"chat\", \"message\":\""+history+" \\n Chat room history loaded\"}"); //placeholder/debug text
+            BroadcastMessage(result,session,"{\"type\": \"chat\"" + ","+ "\"username\": \"" + "♦chatHistory♦" + "\", \"message\":\"" + history + "\"}");
             roomHistoryList.put(roomID, history+" \\n "+roomID + " room resumed.");
         }
         if(!roomHistoryList.containsKey(roomID)) { // only if this room has no history yet
-            roomHistoryList.put(roomID, roomID + " room Created."); //initiating the room history
+            roomHistoryList.put(roomID, "Beginning of Chat History"); //initiating the room history
         }
     }
 
