@@ -25,6 +25,10 @@ public class ZocialServlet extends HttpServlet {
      * **/
     public String addRoom(String givenCode) {
         // generating unique room code if the room code already exists
+         System.out.println(" Empty string " + givenCode.length() );
+       if(givenCode.length() == 0){
+            givenCode = RandomStringUtils.randomAlphanumeric(5).toUpperCase();
+        }
         while (rooms.contains(givenCode)){
             givenCode = RandomStringUtils.randomAlphanumeric(5).toUpperCase();
         }
@@ -53,10 +57,11 @@ public class ZocialServlet extends HttpServlet {
         String owner = (String) jObj.get("owner");
         String roomCode = (String) jObj.get("roomCode");
         System.out.println(" Owner  : " + owner);
-        System.out.println(" Room code : " + roomCode);
 
+        String result = addRoom(roomCode);
         PrintWriter out = response.getWriter();
-        out.println(addRoom(roomCode));
+        out.println(result);
+        System.out.println(" Room code : " + result);
 
     }
 }

@@ -7,6 +7,7 @@ import jdk.jshell.spi.ExecutionControl;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -119,7 +120,24 @@ public class ChatServer {
         String username = FindUsernameInChatRoom(result.getCode(), session.getId());
         BroadcastMessage(result,session, "{\"type\": \"Close\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + username + " left the chat room." + "\"}");
         result.getUsers().remove(session.getId());
+        boolean closedRoomSuccess = CloseChatRemove(result);
+        if(closedRoomSuccess){
+            System.out.println("Room closed successfully because no one is here");
+        }
+        else{
+            System.out.println("Room is still occupied, only single user removed");
+        }
 
+    }
+
+    public static boolean CloseChatRemove(ChatRoom givenRoom){
+        boolean result = false;
+        if(givenRoom.getUsers().size() == 0){
+            listOfChatRooms.remove(givenRoom);
+            ZocialServlet.rooms.remove(givenRoom.getCode());
+            result = true;
+        }
+        return  result;
     }
 
     public static int BroadcastMessage(ChatRoom givenChatRoom, Session session, String givenJSONObjToBeBroadcasted) throws IOException{
@@ -149,6 +167,7 @@ public class ChatServer {
         String message = (String) jsonmsg.get("msg");
         String chatRoomCode = roomID;
         ChatRoom result = FindChatRoom(chatRoomCode);
+        String updatedTimeStamp = "0";
 
         if (result == null){
             throw new IOException(" Room is non-existent !");
@@ -159,16 +178,33 @@ public class ChatServer {
                 UpdateUsernameInChatRoom(chatRoomCode, userId, message);
                 BroadcastMessage(result,session,"{\"type\": \"SetUserName\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + message + " joined the room." + "\"}");
                 break;
+            case "updateVideoTimeStamp":
+                System.out.println("User requested to update timestamp they're playing at. ");
+                updatedTimeStamp = jsonmsg.get("currentTime").toString();;
+                break;
             case "broadcastVideo":
                 result.setVideoCode(message);
                 BroadcastMessage(result,session,"{\"type\": \"BroadcastVideo\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + result.getVideoCode() + "\"}");
                 break;
             case "streamVideo":
-                BroadcastMessage(result,session,"{\"type\": \"StreamVideo\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + result.getVideoCode() + "\"}");
+                BroadcastMessage(result,session,"{\"type\": \"StreamVideo\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + result.getVideoCode() + "\",\"currentTime\": \"" + updatedTimeStamp  + "\"}");
                 break;
             case "chat":
                 String senderUsername = FindUsernameInChatRoom(chatRoomCode, userId);
                 BroadcastMessage(result,session,"{\"type\": \"chat\"" + ","+ "\"username\": \"" + senderUsername + "\", \"message\":\"" + message + "\"}");
+                break;
+            case "play":
+                System.out.println(" Play command sent !");
+                BroadcastMessage(result,session,"{\"type\": \"play\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + result.getVideoCode() +  " played." + "\"}");
+                break;
+            case "pause":
+                System.out.println(" pause command sent !");
+                BroadcastMessage(result,session,"{\"type\": \"pause\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + result.getVideoCode() +  " paused." + "\"}");
+                break;
+            case "seeked":
+                System.out.println(" seeked command sent !");
+                String currentTime = jsonmsg.get("currentTime").toString();
+                BroadcastMessage(result,session,"{\"type\": \"seeked\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + result.getVideoCode() +  " synced." + "\",\"currentTime\":\"" + currentTime + "\"}");
                 break;
             default:
                 throw new IOException("error : client sent wrong instruction. ");

@@ -19,6 +19,8 @@ AlertUserHasNotLeftTheRoomYetRef.innerHTML = `<div class="alert alert-danger" ro
   Please use the 'Leave Room Button'
 </div>`;
 
+let lastSeekFromServer = null; // NEW CODE
+
 var addAlertToDom = (givenParentDOMElem, givenDOMElem) =>
   givenParentDOMElem.insertAdjacentElement("afterbegin", givenDOMElem);
 
@@ -93,6 +95,60 @@ function renderHomeTemplate() {
     `;
   CreateAndJoinChatFormTemplateRef.style.visibility = "visible";
   CreateAndJoinChatFormTemplateRef.style.height = "auto";
+}
+
+function renderVideo() {
+  const videoWrapper = document.createElement("div");
+  videoWrapper.classList.add("w-75");
+  videoWrapper.innerHTML = `<video autoplay id="videoStreamed" muted controls>
+                                      <source src="resources/videos/${VideoNameInputtedVal}.mp4" type="video/mp4">
+                                      Your browser does not support the video tag.
+                                  </video>
+                                    `;
+  let ChatAreaToUpdateRef = document.getElementById("chat-area-to-update");
+  ChatAreaToUpdateRef.insertAdjacentElement("afterbegin", videoWrapper);
+  let VideoStreamedRef = document.getElementById("videoStreamed");
+
+  VideoStreamedRef.addEventListener(
+    "play",
+    function (event) {
+      console.log(" Video is supposed to be played");
+      var command = {
+        type: "play",
+        msg: "Tell clients to play video",
+      };
+      ws.send(JSON.stringify(command));
+    },
+    false
+  );
+  VideoStreamedRef.addEventListener(
+    "pause",
+    function (event) {
+      console.log(" Video is supposed to be paused");
+      var command = {
+        type: "pause",
+        msg: "Tell clients to pause video",
+      };
+      ws.send(JSON.stringify(command));
+    },
+    false
+  );
+  VideoStreamedRef.addEventListener(
+    "seeked",
+    function (event) {
+      console.log(" Video is supposed to be seeked");
+      var timestamp = document.getElementById("videoStreamed").currentTime;
+      if (timestamp !== lastSeekFromServer) {
+        var command = {
+          type: "seeked",
+          currentTime: document.getElementById("videoStreamed").currentTime,
+          msg: "Tell clients to sync video",
+        };
+        ws.send(JSON.stringify(command));
+      }
+    },
+    false
+  );
 }
 
 function chatWindowTemplate() {
@@ -181,6 +237,10 @@ function newRoom() {
   // this is a new change
   let RoomNameInputtedVal = document.getElementById("room-name-input").value;
   VideoNameInputtedVal = document.getElementById("video-to-stream-input").value;
+
+  if (VideoNameInputtedVal.length == 0) {
+    VideoNameInputtedVal = "9876543";
+  }
   let callURL = "http://localhost:8080/Zocial-1.0-SNAPSHOT/zocial-servlet";
 
   fetch(callURL, {
@@ -296,33 +356,23 @@ function enterRoom(code) {
         message.type == "BroadcastVideo"
       ) {
         if (VideoNameInputtedVal == "") VideoNameInputtedVal = message.message;
-        const videoWrapper = document.createElement("div");
-        videoWrapper.classList.add("w-75");
-        videoWrapper.innerHTML = `<video  muted controls>
-                                      <source src="resources/videos/${VideoNameInputtedVal}.mp4" type="video/mp4">
-                                      Your browser does not support the video tag.
-                                  </video>
-  `;
-        let ChatAreaToUpdateRef = document.getElementById(
-          "chat-area-to-update"
-        );
-        ChatAreaToUpdateRef.insertAdjacentElement("afterbegin", videoWrapper);
+        renderVideo();
+        SetVideoTimeStampForEveryone();
+        setInterval(SetVideoTimeStampForEveryone, 3 * 1000);
       } else if (
         message.username == "Server" &&
-        message.type == "StreamVideo"
+        message.type == "StreamVideo" &&
+        VideoNameInputtedVal == ""
       ) {
-        if (VideoNameInputtedVal == "") VideoNameInputtedVal = message.message;
-        const videoWrapper = document.createElement("div");
-        videoWrapper.classList.add("w-75");
-        videoWrapper.innerHTML = `<video  muted controls>
-                                      <source src="resources/videos/${VideoNameInputtedVal}.mp4" type="video/mp4">
-                                      Your browser does not support the video tag.
-                                  </video>
-  `;
-        let ChatAreaToUpdateRef = document.getElementById(
-          "chat-area-to-update"
-        );
-        ChatAreaToUpdateRef.insertAdjacentElement("afterbegin", videoWrapper);
+        VideoNameInputtedVal = message.message;
+        renderVideo();
+        syncVideo(message.currentTime);
+      } else if (message.username == "Server" && message.type == "pause") {
+        pauseVideo();
+      } else if (message.username == "Server" && message.type == "play") {
+        playVideo();
+      } else if (message.username == "Server" && message.type == "seeked") {
+        seekVideo(message.currentTime);
       } else if (
         message.username == "Server" &&
         (message.type == "SetUserName" || message.type == "Close")
@@ -333,7 +383,7 @@ function enterRoom(code) {
         wrapperDiv.style.textAlign = "center";
         wrapperDiv.innerHTML = message.message;
         ListOfMessagesAreaRef.insertAdjacentElement("beforeend", wrapperDiv);
-      } else {
+      } else if (message.type == "chat") {
         wrapperDiv.innerHTML = LeftBubbleMessageHTML(
           message.username,
           message.message,
@@ -343,6 +393,38 @@ function enterRoom(code) {
       }
     };
   }
+}
+
+function syncVideo(givenCurrentTime) {
+  console.log(givenCurrentTime);
+  let VideoStreamedRef = document.getElementById("videoStreamed");
+  lastSeekFromServer = parseFloat(givenCurrentTime); // setting the timestamp from the sever
+  VideoStreamedRef.currentTime = parseFloat(givenCurrentTime);
+}
+
+function pauseVideo() {
+  let VideoStreamedRef = document.getElementById("videoStreamed");
+  VideoStreamedRef.pause();
+}
+function playVideo() {
+  let VideoStreamedRef = document.getElementById("videoStreamed");
+  VideoStreamedRef.play();
+}
+function seekVideo(givenCurrentTime) {
+  console.log(givenCurrentTime);
+  let VideoStreamedRef = document.getElementById("videoStreamed");
+  lastSeekFromServer = parseFloat(givenCurrentTime); // setting the timestamp from the sever
+  VideoStreamedRef.currentTime = parseFloat(givenCurrentTime);
+}
+
+function SetVideoTimeStampForEveryone() {
+  var timestamp = document.getElementById("videoStreamed").currentTime;
+  let request = {
+    type: "updateVideoTimeStamp",
+    currentTime: timestamp,
+    msg: "Owner emiting timestamp to keep everyone in sync. ",
+  };
+  ws.send(JSON.stringify(request));
 }
 
 (function () {})();
