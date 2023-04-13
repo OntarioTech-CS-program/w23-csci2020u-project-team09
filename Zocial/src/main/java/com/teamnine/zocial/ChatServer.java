@@ -148,21 +148,21 @@ public class ChatServer {
             System.out.println("Room is still occupied, only single user removed");
         }
 
-        saveChatRoomHistory(roomID, roomHistoryList.get(roomID));
+        //saveChatRoomHistory(roomID, roomHistoryList.get(roomID));
 
 
     }
 
-    public static boolean CloseChatRemove(ChatRoom givenRoom){
+    public static boolean CloseChatRemove(ChatRoom givenRoom) throws IOException{
         boolean result = false;
         if(givenRoom.getUsers().size() == 0){
+            saveChatRoomHistory(givenRoom.getCode(), roomHistoryList.get(givenRoom.getCode()));
             listOfChatRooms.remove(givenRoom);
             ZocialServlet.rooms.remove(givenRoom.getCode());
             result = true;
         }
         return  result;
     }
-
     public static int BroadcastMessage(ChatRoom givenChatRoom, Session session, String givenJSONObjToBeBroadcasted) throws IOException{
         int countPeers = 0;
         for (Session peer : session.getOpenSessions()){ //broadcast this person left the server
@@ -194,10 +194,9 @@ public class ChatServer {
         String updatedTimeStamp = "0";
 
         // adding event to the history of the room
-        String username = FindUsernameInChatRoom(chatRoomCode, userId);
+        //String username = FindUsernameInChatRoom(chatRoomCode, userId);
         //System.out.println(username);
-        String logHistory = roomHistoryList.get(roomID);
-        roomHistoryList.put(roomID, logHistory+" \\n " +"(" + username + "): " + message + "♦");
+
 
         if (result == null){
             throw new IOException(" Room is non-existent !");
@@ -222,6 +221,9 @@ public class ChatServer {
             case "chat":
                 String senderUsername = FindUsernameInChatRoom(chatRoomCode, userId);
                 BroadcastMessage(result,session,"{\"type\": \"chat\"" + ","+ "\"username\": \"" + senderUsername + "\", \"message\":\"" + message + "\"}");
+                //Save this message in chat history
+                String logHistory = roomHistoryList.get(roomID);
+                roomHistoryList.put(roomID, logHistory+" \\n " +"(" + senderUsername + "): " + message + "♦");
                 break;
             case "play":
                 System.out.println(" Play command sent !");
