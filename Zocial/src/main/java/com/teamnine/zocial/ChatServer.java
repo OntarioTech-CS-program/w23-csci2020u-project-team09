@@ -202,20 +202,19 @@ public class ChatServer {
         ChatRoom result = FindChatRoom(roomID);
         if(result == null)
             throw new IOException("Server: Room does not exist");
-        String username = FindUsernameInChatRoom(result.getCode(), session.getId());
-        BroadcastMessage(result,session, "{\"type\": \"Close\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + username + " left the chat room." + "\"}");
-        result.getUsers().remove(session.getId());
-        boolean closedRoomSuccess = CloseChatRemove(result);
-        if(closedRoomSuccess){
-            System.out.println("Room closed successfully because no one is here");
-        }
-        else{
-            System.out.println("Room is still occupied, only single user removed");
+        if(result.inRoom(session.getId())) {
+            String username = FindUsernameInChatRoom(result.getCode(), session.getId());
+            BroadcastMessage(result, session, "{\"type\": \"Close\"" + "," + "\"username\": \"" + "Server" + "\", \"message\":\"" + username + " left the chat room." + "\"}");
+            result.getUsers().remove(session.getId());
+            boolean closedRoomSuccess = CloseChatRemove(result);
+            if (closedRoomSuccess) {
+                System.out.println("Room closed successfully because no one is here");
+            } else {
+                System.out.println("Room is still occupied, only single user removed");
+            }
         }
 
         //saveChatRoomHistory(roomID, roomHistoryList.get(roomID));
-
-
     }
 
     public static boolean CloseChatRemove(ChatRoom givenRoom) throws IOException{
@@ -261,19 +260,18 @@ public class ChatServer {
         //String username = FindUsernameInChatRoom(chatRoomCode, userId);
         //System.out.println(username);
 
-        // checking if the message contains any of the banned words
-        for (String word: mod.listOfModeratedWords) {
-            if (message.contains(word.toLowerCase())){
-                message = message.replace(word, "***");
-            }
-        }
-
         if (result == null){
             throw new IOException(" Room is non-existent !");
         }
 
         switch(type) {
             case "setUserName":
+                // checking if the message contains any of the banned words
+                for (String word: mod.listOfModeratedWords) {
+                    if (message.contains(word.toLowerCase())){
+                        message = message.replace(word, "***");
+                    }
+                }
                 UpdateUsernameInChatRoom(chatRoomCode, userId, message);
                 BroadcastMessage(result,session,"{\"type\": \"SetUserName\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + message + " joined the room." + "\"}");
                 break;
@@ -289,12 +287,29 @@ public class ChatServer {
                 BroadcastMessage(result,session,"{\"type\": \"StreamVideo\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + result.getVideoCode() + "\",\"currentTime\": \"" + updatedTimeStamp  + "\"}");
                 break;
             case "chat":
+                int strike = 0;
+                // checking if the message contains any of the banned words
+                for (String word: mod.listOfModeratedWords) {
+                    if (message.contains(word.toLowerCase())){
+                        message = message.replace(word, "***");
+                        strike = 1;
+                    }
+                }
+
+                result.updateStrike(userId, strike);
                 String senderUsername = FindUsernameInChatRoom(chatRoomCode, userId);
-                BroadcastMessage(result,session,"{\"type\": \"chat\"" + ","+ "\"username\": \"" + senderUsername + "\", \"message\":\"" + message + "\"}");
-                //Save this message in chat history
-                String logHistory = roomHistoryList.get(roomID);
-                roomHistoryList.put(roomID, logHistory+" \\n " +"♣" + senderUsername + "♠ " + message + "♦");
-                saveChatRoomHistory(result.getCode(), roomHistoryList.get(result.getCode()));
+                if(result.getStrike(userId) <= 3) {
+                    BroadcastMessage(result, session, "{\"type\": \"chat\"" + "," + "\"username\": \"" + senderUsername + "\", \"message\":\"" + message + "\"}");
+                    //Save this message in chat history
+                    String logHistory = roomHistoryList.get(roomID);
+                    roomHistoryList.put(roomID, logHistory + " \\n " + "♣" + senderUsername + "♠ " + message + "♦");
+                    saveChatRoomHistory(result.getCode(), roomHistoryList.get(result.getCode()));
+                } else {
+                    if(result.inRoom(userId)) { // if user is still in room, kick user out and broadcast to remaining users
+                        BroadcastMessage(result,session,"{\"type\": \"KickUser\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + senderUsername + " was kicked out of the room." + "\"}");
+                        kickUser(result, userId);
+                    }
+                }
                 break;
             case "play":
                 System.out.println(" Play command sent !");
@@ -312,5 +327,10 @@ public class ChatServer {
             default:
                 throw new IOException("error : client sent wrong instruction. ");
         }
+    }
+
+    public void kickUser(ChatRoom room, String userID) throws IOException {
+        room.getUsers().remove(userID); // remove user from room list
+        room.updateStrike(userID, 0); //update user strikes
     }
 }

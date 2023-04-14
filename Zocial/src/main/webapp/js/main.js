@@ -384,7 +384,7 @@ function enterRoom(code) {
         seekVideo(message.currentTime);
       } else if (
         message.username == "Server" &&
-        (message.type == "SetUserName" || message.type == "Close")
+        (message.type == "SetUserName" || message.type == "Close" || message.type == "KickUser")
       ) {
         wrapperDiv.classList.add("form-tex");
         wrapperDiv.classList.add("text-muted");
