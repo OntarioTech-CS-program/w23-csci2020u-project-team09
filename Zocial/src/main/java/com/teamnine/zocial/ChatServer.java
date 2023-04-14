@@ -6,8 +6,10 @@ import jakarta.websocket.server.ServerEndpoint;
 import jdk.jshell.spi.ExecutionControl;
 import org.json.JSONObject;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -31,9 +33,17 @@ public class ChatServer {
     public static List<ChatRoom> listOfChatRooms = new ArrayList<ChatRoom>();
     private static Map<String, String> roomHistoryList = new HashMap<String, String>();
 
+    Moderate mod;
 
-    // you may add other attributes as you see fit
-
+    {
+        try {
+            mod = new Moderate();
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        } catch (URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 
     /**
@@ -251,6 +261,12 @@ public class ChatServer {
         //String username = FindUsernameInChatRoom(chatRoomCode, userId);
         //System.out.println(username);
 
+        // checking if the message contains any of the banned words
+        for (String word: mod.listOfModeratedWords) {
+            if (message.contains(word.toLowerCase())){
+                message = message.replace(word, "***");
+            }
+        }
 
         if (result == null){
             throw new IOException(" Room is non-existent !");
