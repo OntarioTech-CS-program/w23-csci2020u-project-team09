@@ -117,7 +117,7 @@ public class ChatServer {
                 System.out.println(username + ": " + message);
 
                 // Run broadcast message
-                BroadcastMessage(result, session, "{\"type\": \"chat\"" + ","+ "\"username\": \"" + username + "\", \"message\":\"" + message+ "\"}");
+                session.getBasicRemote().sendText( "{\"type\": \"chat\"" + ","+ "\"username\": \"" + username + "\", \"message\":\"" + message+ "\"}");
 
                 // Reset builders
                 usernameBuilder = new StringBuilder();
