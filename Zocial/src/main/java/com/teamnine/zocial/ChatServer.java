@@ -63,6 +63,10 @@ public class ChatServer {
                 // build the history
                 historyBuilder(history, newChatRoomCreated, session);
             }
+
+            if(!roomHistoryList.containsKey(roomID)) { // only if this room has no history yet
+                roomHistoryList.put(roomID, " "); //initiating the room history
+            }
         } else {
             result.getUsers().put(session.getId(), "");
             System.out.println("Room already exists! Adding new client " + session.getId() + "to the chat room : " + result.getCode());
@@ -78,6 +82,9 @@ public class ChatServer {
                 System.out.println(history);
                 // build the history
                 historyBuilder(history, result, session);
+            }
+            if(!roomHistoryList.containsKey(roomID)) { // only if this room has no history yet
+                roomHistoryList.put(roomID, "[first message]"); //initiating the room history
             }
         }
     }
