@@ -179,6 +179,15 @@ function chatWindowTemplate() {
         />
         <button type="submit" class="messager-send-btn">Send</button>
       </form>
+      <div class="emoji">
+            <button onclick="addEmoji('128512')">&#128512;</button>
+            <button onclick="addEmoji('128514')">&#128514;</button>
+            <button onclick="addEmoji('128525')">&#128525;</button>
+            <button onclick="addEmoji('128128')">&#128128;</button>
+            <button onclick="addEmoji('128557')">&#128557;</button>
+            <button onclick="addEmoji('128562')">&#128562;</button>
+            <button onclick="addEmoji('128077')">&#128077;</button>
+      </div>
     </section>
   </div>`;
   CreateAndJoinChatFormTemplateRef.style.visibility = "hidden";
