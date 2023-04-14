@@ -57,6 +57,8 @@ public class ChatServer {
 
         }
 
+
+
         // loading the history chat
         String history = loadChatRoomHistory(roomID);
         System.out.println("Room joined ");
@@ -64,10 +66,50 @@ public class ChatServer {
             System.out.println(history);
             history = history.replaceAll(System.lineSeparator(), "\\\n");
             System.out.println(history);
+
+
             //session.getBasicRemote().sendText("{\"type\": \"chat\", \"message\":\""+history+" \\n Chat room history loaded\"}"); //placeholder/debug text
-            BroadcastMessage(result,session,"{\"type\": \"chat\"" + ","+ "\"username\": \"" + "♦chatHistory♦" + "\", \"message\":\"" + history + "\"}");
-            roomHistoryList.put(roomID, history+" \\n "+roomID + " room resumed.");
+            //BroadcastMessage(result,session,"{\"type\": \"chat\"" + ","+ "\"username\": \"" + "♦chatHistory♦" + "\", \"message\":\"" + history + "\"}");
+            //roomHistoryList.put(roomID, history+" \\n "+roomID + " room resumed.");
+
+            StringBuilder usernameBuilder = new StringBuilder();
+            StringBuilder messageBuilder = new StringBuilder();
+            boolean buildingUsername = false;
+
+            for (char c : history.toCharArray()) {
+                if (c == '(') {
+                    buildingUsername = true;
+                } else if (c == ')') {
+                    buildingUsername = false;
+                } else if (c == '♦') {
+                    // Store username and message
+                    String username = usernameBuilder.toString();
+                    String message = messageBuilder.toString();
+                    System.out.println(username + ": " + message);
+
+                    // Run broadcast message
+                    BroadcastMessage(result,session,"{\"type\": \"chat\"" + ","+ "\"username\": \"" + username + "\", \"message\":\"" + message+ "\"}");
+
+                    // Reset builders
+                    usernameBuilder = new StringBuilder();
+                    messageBuilder = new StringBuilder();
+                } else {
+                    if (buildingUsername) {
+                        usernameBuilder.append(c);
+                    } else {
+                        messageBuilder.append(c);
+                    }
+                }
+            }
+
+
         }
+
+
+
+
+
+
         if(!roomHistoryList.containsKey(roomID)) { // only if this room has no history yet
             roomHistoryList.put(roomID, "Beginning of Chat History"); //initiating the room history
         }
@@ -92,6 +134,10 @@ public class ChatServer {
         return result.getUsers().get(givenSessionID);
 
     }
+
+
+
+
 
     /*
     UpdateUsernameInChatRoom()
@@ -224,7 +270,7 @@ public class ChatServer {
                 BroadcastMessage(result,session,"{\"type\": \"chat\"" + ","+ "\"username\": \"" + senderUsername + "\", \"message\":\"" + message + "\"}");
                 //Save this message in chat history
                 String logHistory = roomHistoryList.get(roomID);
-                roomHistoryList.put(roomID, logHistory+" \\n " +"(" + senderUsername + "): " + message + "♦");
+                roomHistoryList.put(roomID, logHistory+" \\n " +"(" + senderUsername + ") " + message + "♦");
                 break;
             case "play":
                 System.out.println(" Play command sent !");
