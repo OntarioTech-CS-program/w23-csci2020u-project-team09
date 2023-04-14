@@ -47,42 +47,41 @@ public class ChatServer {
     @OnOpen
     public void open(@PathParam("roomID") String roomID, Session session) throws IOException, EncodeException {
         ChatRoom result = FindChatRoom(roomID);
-        if(result == null){
+        if (result == null) {
             ChatRoom newChatRoomCreated = new ChatRoom(roomID, session.getId());
             listOfChatRooms.add(newChatRoomCreated);
 
             // loading the history chat
             String history = loadChatRoomHistory(roomID);
             System.out.println("Room joined ");
-            if (history!=null && !(history.isBlank())){
+            if (history != null && !history.isBlank()) {
+                // Add loaded chat history to roomHistoryList
+                roomHistoryList.put(roomID, history);
                 System.out.println(history);
-                history = history.replaceAll(System.lineSeparator(), "\\\n");
+                // history = history.replaceAll(System.lineSeparator(), "\\\n");
                 System.out.println(history);
-                //build the history
+                // build the history
                 historyBuilder(history, newChatRoomCreated, session);
             }
-        }
-        else{
-            result.getUsers().put(session.getId(),"");
+        } else {
+            result.getUsers().put(session.getId(), "");
             System.out.println("Room already exists! Adding new client " + session.getId() + "to the chat room : " + result.getCode());
 
             // loading the history chat
             String history = loadChatRoomHistory(roomID);
             System.out.println("Room joined ");
-            if (history!=null && !(history.isBlank())){
+            if (history != null && !history.isBlank()) {
+                // Add loaded chat history to roomHistoryList
+                roomHistoryList.put(roomID, history);
                 System.out.println(history);
-                history = history.replaceAll(System.lineSeparator(), "\\\n");
+                // history = history.replaceAll(System.lineSeparator(), "\\\n");
                 System.out.println(history);
-                //build the history
+                // build the history
                 historyBuilder(history, result, session);
             }
         }
-
-
-//        if(!roomHistoryList.containsKey(roomID)) { // only if this room has no history yet
-//            roomHistoryList.put(roomID, "Beginning of Chat History"); //initiating the room history
-//        }
     }
+
 
     public static void historyBuilder(String history, ChatRoom result, Session session) throws IOException {
         StringBuilder usernameBuilder = new StringBuilder();
