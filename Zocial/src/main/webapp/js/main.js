@@ -446,3 +446,8 @@ window.onbeforeunload = function () {
   ws.onclose = function () {}; // disable onclose handler first
   clearInterval(setInterval);
 };
+
+function addEmoji(emote){
+  let emoji = String.fromCodePoint(emote);
+  document.getElementById("messager-input").value += emoji;
+}

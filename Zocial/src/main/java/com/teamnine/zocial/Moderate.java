@@ -12,7 +12,7 @@ public class Moderate {
     public List<String> listOfModeratedWords = new ArrayList<String>();
 
     public Moderate() throws FileNotFoundException, URISyntaxException {
-        URL url = this.getClass().getClassLoader().getResource("full-list-of-bad-words.txt");
+        URL url = this.getClass().getClassLoader().getResource("swearWords.txt");
         File file = new File(url.toURI());
         Scanner s = new Scanner(file);
         while (s.hasNext()){
