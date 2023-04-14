@@ -50,32 +50,34 @@ public class ChatServer {
         if(result == null){
             ChatRoom newChatRoomCreated = new ChatRoom(roomID, session.getId());
             listOfChatRooms.add(newChatRoomCreated);
+
+            // loading the history chat
+            String history = loadChatRoomHistory(roomID);
+            System.out.println("Room joined ");
+            if (history!=null && !(history.isBlank())){
+                System.out.println(history);
+                history = history.replaceAll(System.lineSeparator(), "\\\n");
+                System.out.println(history);
+                //build the history
+                historyBuilder(history, newChatRoomCreated, session);
+            }
         }
         else{
             result.getUsers().put(session.getId(),"");
             System.out.println("Room already exists! Adding new client " + session.getId() + "to the chat room : " + result.getCode());
 
+            // loading the history chat
+            String history = loadChatRoomHistory(roomID);
+            System.out.println("Room joined ");
+            if (history!=null && !(history.isBlank())){
+                System.out.println(history);
+                history = history.replaceAll(System.lineSeparator(), "\\\n");
+                System.out.println(history);
+                //build the history
+                historyBuilder(history, result, session);
+            }
         }
 
-
-
-        // loading the history chat
-        String history = loadChatRoomHistory(roomID);
-        System.out.println("Room joined ");
-        if (history!=null && !(history.isBlank())){
-            System.out.println(history);
-            history = history.replaceAll(System.lineSeparator(), "\\\n");
-            System.out.println(history);
-
-
-            //session.getBasicRemote().sendText("{\"type\": \"chat\", \"message\":\""+history+" \\n Chat room history loaded\"}"); //placeholder/debug text
-            //BroadcastMessage(result,session,"{\"type\": \"chat\"" + ","+ "\"username\": \"" + "♦chatHistory♦" + "\", \"message\":\"" + history + "\"}");
-            //roomHistoryList.put(roomID, history+" \\n "+roomID + " room resumed.");
-
-            historyBuilder(history, result, session);
-
-
-        }
 
 //        if(!roomHistoryList.containsKey(roomID)) { // only if this room has no history yet
 //            roomHistoryList.put(roomID, "Beginning of Chat History"); //initiating the room history
@@ -203,7 +205,6 @@ public class ChatServer {
     public static boolean CloseChatRemove(ChatRoom givenRoom) throws IOException{
         boolean result = false;
         if(givenRoom.getUsers().size() == 0){
-            saveChatRoomHistory(givenRoom.getCode(), roomHistoryList.get(givenRoom.getCode()));
             listOfChatRooms.remove(givenRoom);
             ZocialServlet.rooms.remove(givenRoom.getCode());
             result = true;
@@ -271,6 +272,7 @@ public class ChatServer {
                 //Save this message in chat history
                 String logHistory = roomHistoryList.get(roomID);
                 roomHistoryList.put(roomID, logHistory+" \\n " +"♣" + senderUsername + "♠ " + message + "♦");
+                saveChatRoomHistory(result.getCode(), roomHistoryList.get(result.getCode()));
                 break;
             case "play":
                 System.out.println(" Play command sent !");
