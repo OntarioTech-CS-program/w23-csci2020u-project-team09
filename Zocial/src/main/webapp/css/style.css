@@ -180,11 +180,16 @@ div.content {
   font-family: "Merriweather", serif;
 }
 
+.videoWrapper {
+  width: 75%;
+}
 /* On screens that are less than 700px wide, make the sidebar into a topbar */
 @media screen and (max-width: 700px) {
   .sidebar {
     width: 100%;
     height: auto;
+    padding-bottom: 1rem;
+    display: block;
     position: relative;
   }
   .sidebar a {
@@ -192,6 +197,28 @@ div.content {
   }
   div.content {
     margin-left: 0;
+    flex-flow: row wrap;
+  }
+
+  .messager {
+    width: 100%;
+  }
+
+  .sidebar a {
+    text-align: center;
+    float: none;
+  }
+
+  #listOfChatRooms {
+    width: 100%;
+  }
+
+  #chat-area-to-update {
+    height: auto;
+  }
+  .videoWrapper {
+    width: 100%;
+    padding: 1rem;
   }
 }
 

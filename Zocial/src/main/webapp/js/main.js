@@ -99,7 +99,7 @@ function renderHomeTemplate() {
 
 function renderVideo() {
   const videoWrapper = document.createElement("div");
-  videoWrapper.classList.add("w-75");
+  videoWrapper.classList.add("videoWrapper");
   videoWrapper.innerHTML = `<video autoplay id="videoStreamed" muted controls>
                                       <source src="resources/videos/${VideoNameInputtedVal}.mp4" type="video/mp4">
                                       Your browser does not support the video tag.
@@ -178,16 +178,16 @@ function chatWindowTemplate() {
                 placeholder="Enter your message..."
         />
         <button type="submit" class="messager-send-btn">Send</button>
-      </form>
-      <div class="emoji">
-            <button onclick="addEmoji('128512')">&#128512;</button>
-            <button onclick="addEmoji('128514')">&#128514;</button>
-            <button onclick="addEmoji('128525')">&#128525;</button>
-            <button onclick="addEmoji('128128')">&#128128;</button>
-            <button onclick="addEmoji('128557')">&#128557;</button>
-            <button onclick="addEmoji('128562')">&#128562;</button>
-            <button onclick="addEmoji('128077')">&#128077;</button>
-      </div>
+        </form>
+        <div class="emoji">
+              <button onclick="addEmoji('128512')">&#128512;</button>
+              <button onclick="addEmoji('128514')">&#128514;</button>
+              <button onclick="addEmoji('128525')">&#128525;</button>
+              <button onclick="addEmoji('128128')">&#128128;</button>
+              <button onclick="addEmoji('128557')">&#128557;</button>
+              <button onclick="addEmoji('128562')">&#128562;</button>
+              <button onclick="addEmoji('128077')">&#128077;</button>
+        </div>
     </section>
   </div>`;
   CreateAndJoinChatFormTemplateRef.style.visibility = "hidden";
@@ -384,7 +384,9 @@ function enterRoom(code) {
         seekVideo(message.currentTime);
       } else if (
         message.username == "Server" &&
-        (message.type == "SetUserName" || message.type == "Close" || message.type == "KickUser")
+        (message.type == "SetUserName" ||
+          message.type == "Close" ||
+          message.type == "KickUser")
       ) {
         wrapperDiv.classList.add("form-tex");
         wrapperDiv.classList.add("text-muted");
@@ -447,7 +449,7 @@ window.onbeforeunload = function () {
   clearInterval(setInterval);
 };
 
-function addEmoji(emote){
+function addEmoji(emote) {
   let emoji = String.fromCodePoint(emote);
   document.getElementById("messager-input").value += emoji;
 }
