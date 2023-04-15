@@ -21,6 +21,18 @@ Link: https://youtu.be/dgHc5L46cmk
 3) Open the Zocial folder as an Intellij project and deploy the Zocial:war artifact on a remote GlassFish server.
 4) Duplicate tabs to test out the multi client feature.
 
+## Snapshots 
+
+![image](https://user-images.githubusercontent.com/59520945/232180227-561a376f-0c30-42b2-8f27-324162d00304.png)
+
+![image](https://user-images.githubusercontent.com/59520945/232180545-446abba5-2ad3-42ab-8e0c-cc45e4a6736f.png)
+
+![image](https://user-images.githubusercontent.com/59520945/232180584-b3a7f2d6-6e2d-4799-85de-136ca8e37b52.png)
+
+![image](https://user-images.githubusercontent.com/59520945/232180627-59c388f6-940e-4670-86ac-83e92d1ab5a7.png)
+
+![image](https://user-images.githubusercontent.com/59520945/232180232-b8529f45-ed3a-45ad-9e08-a0c8e4bf7efe.png)
+
 ## Other Resources
 
 - Lecture code
