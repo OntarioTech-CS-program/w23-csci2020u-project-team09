@@ -4,7 +4,11 @@ ________________________________________________________________________________
 
 Zocial is a cutting-edge streaming server that allows users to set up virtual rooms where they can stream videos with friends and family in real time. With Zocial, you can watch your favorite movies, TV shows, and other videos while chatting with others in the same virtual room.
 
-## How to run
+Zocial is designed for convenience and ease of use. Simply create a new room and choose a video to stream to get going. Other users can join your room and watch the same video in sync with you. As the creator of the room, you have complete control over the video playback: you can pause, resume, or seek the video as needed.
+
+
+
+## How to setup and run
 
 1) Clone the repository.
 2) Open the ZocialChatResourceAPI folder as an Intellij project and deploy the ZocialChatResourceAPI:war exploded artifact on a local GlassFish server.
