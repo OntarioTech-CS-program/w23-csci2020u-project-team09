@@ -10,6 +10,10 @@ Zocial also includes a chat feature, which allows you to communicate with others
 
 To ensure smooth streaming, Zocial uses web sockets, which allows for real-time communication between users, and an API. When you join an already created room, the chat history is loaded from the API, allowing you to catch up on any conversations that you may have missed.
 
+## View Our Demo!
+
+Link: https://youtu.be/dgHc5L46cmk
+
 ## How to setup and run
 
 1) Clone the repository.
