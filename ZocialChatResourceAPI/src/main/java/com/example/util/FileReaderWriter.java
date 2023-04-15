@@ -6,6 +6,14 @@ import java.io.*;
 import java.util.Map;
 
 public class FileReaderWriter {
+
+    /*
+    Function saves new file
+    @param
+        - dir: the directory the file is to be saved in
+        - name of the file to be created
+        - content: contents of the file
+    * */
     static public void saveNewFile(File dir, String name, String content) throws FileNotFoundException {
         File myFile = null;
         try {
@@ -52,8 +60,6 @@ public class FileReaderWriter {
                 }
                 String content = buffer.toString();
 
-                System.out.println(content);
-
                 return content;
 
             }
@@ -61,8 +67,5 @@ public class FileReaderWriter {
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-
-
-
     }
 }

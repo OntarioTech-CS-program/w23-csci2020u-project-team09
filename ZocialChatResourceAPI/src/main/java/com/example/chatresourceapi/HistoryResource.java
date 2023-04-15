@@ -29,15 +29,11 @@ public class HistoryResource {
      * This method will read the content of roomID.json file and send it back to requester
      * **/
     public Response getRoomHistory(@PathParam("roomID") String roomID) {
-        /*
-         TODO: read contents from the roomID.json file and return it
-         loading the resource directory
-        */
+
+         //loading the resource directory
         URL url = this.getClass().getClassLoader().getResource("/chatHistory");
         String history = "";
         File mainDir = null;
-
-        //loading the resource directory
         try {
             mainDir = new File(url.toURI());
         } catch (URISyntaxException e) {
@@ -66,8 +62,6 @@ public class HistoryResource {
                 .entity(mapper.toString()) // adding the json data
                 .build();
         return myResp;
-
-
     }
 
 
