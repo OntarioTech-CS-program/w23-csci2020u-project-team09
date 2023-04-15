@@ -24,6 +24,7 @@ let lastSeekFromServer = null; // NEW CODE
 var addAlertToDom = (givenParentDOMElem, givenDOMElem) =>
   givenParentDOMElem.insertAdjacentElement("afterbegin", givenDOMElem);
 
+// sets up the way messages sent by the user will appear
 function RightBubbleMessageHTML(
   givenUsername,
   givenMessage,
@@ -48,6 +49,7 @@ function RightBubbleMessageHTML(
             </div>`;
 }
 
+// sets up the way messages sent by the other users will appear
 function LeftBubbleMessageHTML(givenUsername, givenMessage, capturedTimeStamp) {
   return `<div class="message left-message">
               <div
@@ -74,6 +76,7 @@ function setUserName() {
   renderHomeTemplate();
 }
 
+// sets up the home page
 function renderHomeTemplate() {
   IndexPageAreaToUpdateRef.innerHTML = ``;
   IndexPageAreaToUpdateRef.innerHTML = `  <div class="content" id="area-to-update">
@@ -97,6 +100,7 @@ function renderHomeTemplate() {
   CreateAndJoinChatFormTemplateRef.style.height = "auto";
 }
 
+// sets up the video
 function renderVideo() {
   const videoWrapper = document.createElement("div");
   videoWrapper.classList.add("videoWrapper");
@@ -151,6 +155,7 @@ function renderVideo() {
   );
 }
 
+// sets up the chat window
 function chatWindowTemplate() {
   IndexPageAreaToUpdateRef.innerHTML = ``;
   IndexPageAreaToUpdateRef.innerHTML = `<div id="chat-area-to-update" class="content">
@@ -197,6 +202,7 @@ function chatWindowTemplate() {
   MessageInputAreaFormRef.addEventListener("submit", ProcessMessageInputted);
 }
 
+// processes and sends the message to the server
 function ProcessMessageInputted(event) {
   let messageInputtedVal = document.getElementById("messager-input").value;
   console.log(" messageInputtedVal " + messageInputtedVal);
@@ -211,6 +217,7 @@ function ProcessMessageInputted(event) {
   event.preventDefault();
 }
 
+// get list of rooms from server
 function GetListOfRooms() {
   ListOfRoomsTemplateRef.innerHTML = ``;
   // calling the ChatServlet to retrieve a new room ID
@@ -241,9 +248,9 @@ function GetListOfRooms() {
       }
     });
 }
+
+// creates new room by calling the ChatServlet to retrieve a new room ID
 function newRoom() {
-  // calling the ChatServlet to retrieve a new room ID
-  // this is a new change
   let RoomNameInputtedVal = document.getElementById("room-name-input").value;
   VideoNameInputtedVal = document.getElementById("video-to-stream-input").value;
 
@@ -440,6 +447,7 @@ function SetVideoTimeStampForEveryone() {
 
 (function () {})();
 
+// keep refreshing the list
 GetListOfRooms();
 setInterval(GetListOfRooms, 100 * 1000);
 
@@ -449,6 +457,7 @@ window.onbeforeunload = function () {
   clearInterval(setInterval);
 };
 
+// add functionality to emoji buttons
 function addEmoji(emote) {
   let emoji = String.fromCodePoint(emote);
   document.getElementById("messager-input").value += emoji;
