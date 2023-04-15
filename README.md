@@ -6,7 +6,7 @@ Zocial is a cutting-edge streaming server that allows users to set up virtual ro
 
 Zocial is designed for convenience and ease of use. Simply create a new room and choose a video to stream to get going. Other users can join your room and watch the same video in sync with you. As the creator of the room, you have complete control over the video playback: you can pause, resume, or seek the video as needed.
 
-
+To ensure seamless streaming, Zocial uses web sockets and an API to transmit data between users. When you join a room, you can access the chat history, which is loaded from the API, allowing you to catch up on any conversations that you may have missed.
 
 ## How to setup and run
 
