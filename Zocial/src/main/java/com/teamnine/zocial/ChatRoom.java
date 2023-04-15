@@ -11,16 +11,9 @@ public class ChatRoom {
     private String code;
     private String videoCode;
 
-    public void setVideoCode(String givenVideoCode) {
-        this.videoCode = givenVideoCode;
-    }
-
-    public String getVideoCode() {
-        return videoCode;
-    }
-
     //each user has an unique ID associate to their ws session and their username
     private Map<String, String> users = new HashMap<String, String>();
+    // stores userIDs and their strike counts
     private Map<String, Integer> userStrikes = new HashMap<String, Integer>();
 
     // when created the chat room has at least one user
@@ -28,6 +21,14 @@ public class ChatRoom {
         this.code = code;
         // when created the user has not entered their username yet
         this.users.put(user, "");
+    }
+
+    public void setVideoCode(String givenVideoCode) {
+        this.videoCode = givenVideoCode;
+    }
+
+    public String getVideoCode() {
+        return videoCode;
     }
 
     public void setCode(String code) {
@@ -69,6 +70,7 @@ public class ChatRoom {
         return users.containsKey(userID);
     }
 
+    // updates a user's strike count
     public void updateStrike(String userID, Integer strike) {
         if (userStrikes.containsKey(userID)) {
             int ogCount = userStrikes.get(userID);
@@ -77,10 +79,6 @@ public class ChatRoom {
         } else { // add new user
             userStrikes.put(userID, strike);
         }
-    }
-
-    public Map<String, Integer> getUserStrikes() {
-        return userStrikes;
     }
 
     public int getStrike(String userID) {

@@ -25,10 +25,10 @@ import static util.ResourceAPI.saveChatRoomHistory;
 public class ChatServer {
 
     // contains a static List of ChatRoom used to control the existing rooms and their users
-    /** Chat Room has two attributes
-     - code
-     - List of people in the chat room
-     - TODO - (Coordinate w/ Heather/ Jahanvi) Might have to implement a list of messages similar to WSChatServerDemo
+    /** ChatServer has three attributes
+     - list of existing chat rooms
+     - list of histories of rooms
+     - moderator
      **/
     public static List<ChatRoom> listOfChatRooms = new ArrayList<ChatRoom>();
     private static Map<String, String> roomHistoryList = new HashMap<String, String>();
@@ -45,31 +45,28 @@ public class ChatServer {
         }
     }
 
-
     /**
      Function that executes whenever a new client connects to the web socket.
      Params:
      - roomID that the client is requesting to connect to
-     - Session object that contatins properties of the client such as SessionID when the connection is newly created.
+     - Session object that contains properties of the client such as SessionID when the connection is newly created.
      Function creates a new chat room and adds it to the list of chat rooms (Static variable)
-     TO-DO -> remove System.out.println when debugging process is complete and ready for submission.
      **/
     @OnOpen
     public void open(@PathParam("roomID") String roomID, Session session) throws IOException, EncodeException {
+
         ChatRoom result = FindChatRoom(roomID);
+
         if (result == null) {
             ChatRoom newChatRoomCreated = new ChatRoom(roomID, session.getId());
             listOfChatRooms.add(newChatRoomCreated);
 
             // loading the history chat
             String history = loadChatRoomHistory(roomID);
-            System.out.println("Room joined ");
+
             if (history != null && !history.isBlank()) {
                 // Add loaded chat history to roomHistoryList
                 roomHistoryList.put(roomID, history);
-                System.out.println(history);
-                // history = history.replaceAll(System.lineSeparator(), "\\\n");
-                System.out.println(history);
                 // build the history
                 historyBuilder(history, newChatRoomCreated, session);
             }
@@ -83,13 +80,10 @@ public class ChatServer {
 
             // loading the history chat
             String history = loadChatRoomHistory(roomID);
-            System.out.println("Room joined ");
+
             if (history != null && !history.isBlank()) {
                 // Add loaded chat history to roomHistoryList
                 roomHistoryList.put(roomID, history);
-                System.out.println(history);
-                // history = history.replaceAll(System.lineSeparator(), "\\\n");
-                System.out.println(history);
                 // build the history
                 historyBuilder(history, result, session);
             }
@@ -99,7 +93,13 @@ public class ChatServer {
         }
     }
 
-
+    /**
+     Function that builds the room history and loads it as messages
+     Params:
+     - history of the chat room
+     - result: the chatroom for which the history is to be built
+     - Session object that contains properties of the client such as SessionID
+     **/
     public static void historyBuilder(String history, ChatRoom result, Session session) throws IOException {
         StringBuilder usernameBuilder = new StringBuilder();
         StringBuilder messageBuilder = new StringBuilder();
@@ -132,7 +132,6 @@ public class ChatServer {
         }
     }
 
-
     /*
     FindUsernameInChatRoom()
         @Params:
@@ -153,10 +152,6 @@ public class ChatServer {
 
     }
 
-
-
-
-
     /*
     UpdateUsernameInChatRoom()
         @Params:
@@ -164,7 +159,6 @@ public class ChatServer {
             - String givenSessionID: The unique identifier that is associated with the client.
             - String givenUserName: The username to be updated for the client.
         Updates the username value of the client using the givenUserName.
-        TODO -> If time permits, ensure UpdateUsernameInChatRoom throws exception if result is null.
     */
     public static void  UpdateUsernameInChatRoom(String givenChatRoomCode, String givenSessionID, String givenUserName){
         String reFormattedChatRoomCode = givenChatRoomCode.replace("\r\n", "");
@@ -177,6 +171,12 @@ public class ChatServer {
         result.getUsers().put(givenSessionID, givenUserName);
     }
 
+    /*
+    FindChatRoom
+        @Params:
+            - String givenChatRoomCode: The room code in which the user is supposedly in.
+        @returns (ChatRoom): The chat room associated with the room code
+    */
     public static ChatRoom FindChatRoom(String givenChatRoomCode){
         String reFormattedChatRoomCode = givenChatRoomCode.replace("\r\n", "");
         ChatRoom result = listOfChatRooms.stream()
@@ -190,33 +190,36 @@ public class ChatServer {
 
     /*
     Function that executes whenever the client disconnects from the websocket.
-    TODO -> Remove the < (String) Session.GetID , (String) username > item from the HashMap list data member in the ChatRoom class.
-    TODO -> Send a message to the client saying the client has successfully disconnected.
-            The message needs to be of the shape of the following JSON structure:
-            "{\"type\": \"Close\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + "Client successfully disconnected." + "\"}"
-    TODO -> Implement try catch statements (time permitting and look at the rubric for expectations and stuff ...)
+     - roomID that the client is requesting to disconnect from
+     - Session object that contains properties of the client such as SessionID
     */
     @OnClose
     public void close(@PathParam("roomID") String roomID, Session session) throws IOException, EncodeException {
 
         ChatRoom result = FindChatRoom(roomID);
+
         if(result == null)
             throw new IOException("Server: Room does not exist");
+
         if(result.inRoom(session.getId())) {
+
             String username = FindUsernameInChatRoom(result.getCode(), session.getId());
             BroadcastMessage(result, session, "{\"type\": \"Close\"" + "," + "\"username\": \"" + "Server" + "\", \"message\":\"" + username + " left the chat room." + "\"}");
             result.getUsers().remove(session.getId());
+
             boolean closedRoomSuccess = CloseChatRemove(result);
+
             if (closedRoomSuccess) {
                 System.out.println("Room closed successfully because no one is here");
             } else {
                 System.out.println("Room is still occupied, only single user removed");
             }
         }
-
-        //saveChatRoomHistory(roomID, roomHistoryList.get(roomID));
     }
 
+    /*
+    Function removes chatroom from list of chat rooms
+    * */
     public static boolean CloseChatRemove(ChatRoom givenRoom) throws IOException{
         boolean result = false;
         if(givenRoom.getUsers().size() == 0){
@@ -226,6 +229,10 @@ public class ChatServer {
         }
         return  result;
     }
+
+    /**
+     Function that broadcasts a message to all the users in a chat room
+     * */
     public static int BroadcastMessage(ChatRoom givenChatRoom, Session session, String givenJSONObjToBeBroadcasted) throws IOException{
         int countPeers = 0;
         for (Session peer : session.getOpenSessions()){ //broadcast this person left the server
@@ -236,14 +243,11 @@ public class ChatServer {
                 countPeers++; // count how many peers are left in the room
             }
         }
-
         return countPeers;
     }
+
     /*
     Function that executes whenever the client sends a message to the websocket.
-    TODO -> Should handle 2 cases where type is the following:
-            (setUsername) - Updates the username in the chat room for the client (indexed by Session.GetID())
-            (chat) - Text messages to fellow users only in that room.
     */
     @OnMessage
     public void handleMessage(@PathParam("roomID") String roomID, String comm, Session session) throws IOException, EncodeException {
@@ -255,10 +259,6 @@ public class ChatServer {
         String chatRoomCode = roomID;
         ChatRoom result = FindChatRoom(chatRoomCode);
         String updatedTimeStamp = "0";
-
-        // adding event to the history of the room
-        //String username = FindUsernameInChatRoom(chatRoomCode, userId);
-        //System.out.println(username);
 
         if (result == null){
             throw new IOException(" Room is non-existent !");
@@ -304,7 +304,7 @@ public class ChatServer {
                     String logHistory = roomHistoryList.get(roomID);
                     roomHistoryList.put(roomID, logHistory + " \\n " + "♣" + senderUsername + "♠ " + message + "♦");
                     saveChatRoomHistory(result.getCode(), roomHistoryList.get(result.getCode()));
-                } else {
+                } else { // if the user has entered a swear word more than 3 times
                     if(result.inRoom(userId)) { // if user is still in room, kick user out and broadcast to remaining users
                         BroadcastMessage(result,session,"{\"type\": \"KickUser\"" + ","+ "\"username\": \"" + "Server" + "\", \"message\":\"" + senderUsername + " was kicked out of the room." + "\"}");
                         kickUser(result, userId);
@@ -329,6 +329,9 @@ public class ChatServer {
         }
     }
 
+    /*
+    Function that takes care of removing the user from the chat room
+    * */
     public void kickUser(ChatRoom room, String userID) throws IOException {
         room.getUsers().remove(userID); // remove user from room list
         room.updateStrike(userID, 0); //update user strikes

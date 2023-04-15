@@ -11,6 +11,7 @@ import java.io.PrintWriter;
 public class ZocialRoomsServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        // build list  of existing rooms
         String result = "[";
         if(!ZocialServlet.rooms.isEmpty()){
             for(String elem : ZocialServlet.rooms){

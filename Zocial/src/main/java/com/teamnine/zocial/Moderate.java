@@ -9,8 +9,11 @@ import java.util.List;
 import java.util.Scanner;
 
 public class Moderate {
+
+    // stores list of words that are to be bleeped if they appear in a message
     public List<String> listOfModeratedWords = new ArrayList<String>();
 
+    // initializes the list with contents of swearWords.txt
     public Moderate() throws FileNotFoundException, URISyntaxException {
         URL url = this.getClass().getClassLoader().getResource("swearWords.txt");
         File file = new File(url.toURI());
